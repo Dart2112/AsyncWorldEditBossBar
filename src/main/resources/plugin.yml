@@ -1,0 +1,6 @@
+name: AsyncWorldEditBossBar
+version: ${project.version}
+main: net.lapismc.asyncworldeditbossbar.AsyncWorldEditBossBar
+api-version: 1.13
+depend:
+  - AsyncWorldEdit
