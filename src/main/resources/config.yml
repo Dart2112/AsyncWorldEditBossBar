@@ -1,2 +1,7 @@
+# Use this config to modify how the boss bar looks while AsyncWorldEdit is running
+
 # Available variables are $jobsCount, $queuedBlocks, $maxQueuedBlocks, $timeLeft, $placingSpeed, $percentage
 TitleFormat: "ETA: $timeLeft seconds, Speed: $placingSpeed block/sec, $percentage %"
+# Color that the progress bar should be
+# Color options are PINK,BLUE,RED,GREEN,YELLOW,PURPLE,WHITE
+BarColor: "BLUE"
