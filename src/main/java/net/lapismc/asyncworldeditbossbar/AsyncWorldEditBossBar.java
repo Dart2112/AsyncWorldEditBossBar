@@ -6,14 +6,13 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.primesoft.asyncworldedit.AsyncWorldEditMain;
+import org.primesoft.asyncworldedit.api.IAsyncWorldEdit;
 import org.primesoft.asyncworldedit.api.playerManager.IPlayerEntry;
 import org.primesoft.asyncworldedit.api.progressDisplay.IProgressDisplay;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.UUID;
 
 public final class AsyncWorldEditBossBar extends JavaPlugin implements IProgressDisplay {
@@ -25,14 +24,16 @@ public final class AsyncWorldEditBossBar extends JavaPlugin implements IProgress
         //Save the config before the registration to make sure the variables there in will be available
         saveDefaultConfig();
         //Add this class as a progress display in the AsyncWorldEdit API
-        AsyncWorldEditMain.getInstance().getAPI().getProgressDisplayManager().registerProgressDisplay(this);
+        IAsyncWorldEdit awe = (IAsyncWorldEdit) Bukkit.getPluginManager().getPlugin("AsyncWorldEdit");
+        awe.getProgressDisplayManager().registerProgressDisplay(this);
         getLogger().info(getName() + " v." + getDescription().getVersion() + " has been enabled");
     }
 
     @Override
     public void onDisable() {
         //Remove this class as a progress display in the AsyncWorldEdit API
-        AsyncWorldEditMain.getInstance().getAPI().getProgressDisplayManager().unregisterProgressDisplay(this);
+        IAsyncWorldEdit awe = (IAsyncWorldEdit) Bukkit.getPluginManager().getPlugin("AsyncWorldEdit");
+        awe.getProgressDisplayManager().unregisterProgressDisplay(this);
     }
 
     @Override
@@ -58,7 +59,7 @@ public final class AsyncWorldEditBossBar extends JavaPlugin implements IProgress
             BarColor color = BarColor.valueOf(getConfig().getString("BarColor", "BLUE"));
             bossBar = Bukkit.createBossBar("", color, BarStyle.SOLID);
             //Add the player to the bar, The title should be set so quickly that they shouldn't see the first update anyway
-            bossBar.addPlayer(Objects.requireNonNull(Bukkit.getPlayer(player.getUUID())));
+            bossBar.addPlayer(Bukkit.getPlayer(player.getUUID()));
         }
         //The number we get is 0-100, we need 0-1, a simple /100 sorts that out
         bossBar.setProgress(percentage / 100);
