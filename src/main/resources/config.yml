@@ -1,0 +1,2 @@
+# Available variables are $jobsCount, $queuedBlocks, $maxQueuedBlocks, $timeLeft, $placingSpeed, $percentage
+TitleFormat: "ETA: $timeLeft seconds, Speed: $placingSpeed block/sec, $percentage %"

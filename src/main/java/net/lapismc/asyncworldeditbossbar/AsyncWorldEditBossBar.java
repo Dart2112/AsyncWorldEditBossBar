@@ -21,7 +21,9 @@ public final class AsyncWorldEditBossBar extends JavaPlugin implements IProgress
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
         AsyncWorldEditMain.getInstance().getAPI().getProgressDisplayManager().registerProgressDisplay(this);
+        getLogger().info(getName() + " v." + getDescription().getVersion() + " has been enabled");
     }
 
     @Override
@@ -44,11 +46,18 @@ public final class AsyncWorldEditBossBar extends JavaPlugin implements IProgress
         if (bossBars.containsKey(player.getUUID())) {
             bossBar = bossBars.get(player.getUUID());
         } else {
-            bossBar = Bukkit.createBossBar("World Edit", BarColor.BLUE, BarStyle.SOLID);
+            bossBar = Bukkit.createBossBar("", BarColor.BLUE, BarStyle.SOLID);
         }
         bossBar.setProgress(percentage / 100);
         NumberFormat nf = new DecimalFormat("#.##");
-        bossBar.setTitle("ETA: " + nf.format(timeLeft) + " seconds, Speed: " + nf.format(placingSpeed) + " block/sec");
+        String format = getConfig().getString("TitleFormat");
+        format = format.replace("$jobsCount", jobsCount + "")
+                .replace("$queuedBlocks", queuedBlocks + "")
+                .replace("$maxQueuedBlocks", maxQueuedBlocks + "")
+                .replace("$timeLeft", nf.format(timeLeft))
+                .replace("$placingSpeed", nf.format(placingSpeed))
+                .replace("$percentage", nf.format(percentage));
+        bossBar.setTitle(format);
         bossBar.addPlayer(Objects.requireNonNull(Bukkit.getPlayer(player.getUUID())));
         bossBars.put(player.getUUID(), bossBar);
     }
