@@ -6,7 +6,7 @@
 
     <groupId>net.lapismc</groupId>
     <artifactId>AsyncWorldEditBossBar</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <packaging>jar</packaging>
 
     <name>AsyncWorldEditBossBar</name>
@@ -53,13 +53,13 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.15.2-R0.1-SNAPSHOT</version>
+            <version>1.16.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.primesoft.asyncworldedit</groupId>
             <artifactId>AsyncWorldEdit-API</artifactId>
-            <version>[2.2.0-rc-01, 2.2.0)</version>
+            <version>2.2.0-rc-05</version>
             <type>jar</type>
         </dependency>
     </dependencies>

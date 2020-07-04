@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public final class AsyncWorldEditBossBar extends JavaPlugin implements IProgressDisplay {
 
-    private HashMap<UUID, BossBar> bossBars = new HashMap<>();
+    private final HashMap<UUID, BossBar> bossBars = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -62,7 +62,8 @@ public final class AsyncWorldEditBossBar extends JavaPlugin implements IProgress
             bossBar.addPlayer(Bukkit.getPlayer(player.getUUID()));
         }
         //The number we get is 0-100, we need 0-1, a simple /100 sorts that out
-        bossBar.setProgress(percentage / 100);
+        double progress = Math.max(0, Math.min(1, percentage / 100));
+        bossBar.setProgress(progress);
         //The doubles given to us are stupidly long, so we use this number format to shorten them
         NumberFormat nf = new DecimalFormat("#.##");
         String format = getConfig().getString("TitleFormat");
