@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.primesoft.asyncworldedit.api.IAsyncWorldEdit;
 import org.primesoft.asyncworldedit.api.playerManager.IPlayerEntry;
@@ -50,6 +51,7 @@ public final class AsyncWorldEditBossBar extends JavaPlugin implements IProgress
     @Override
     public void setMessage(IPlayerEntry player, int jobsCount, int queuedBlocks, int maxQueuedBlocks, double timeLeft,
                            double placingSpeed, double percentage) {
+        Player p = Bukkit.getPlayer(player.getUUID());
         //Get the stored boss bar or make a new one if we dont have one stored
         BossBar bossBar;
         if (bossBars.containsKey(player.getUUID())) {
@@ -59,7 +61,11 @@ public final class AsyncWorldEditBossBar extends JavaPlugin implements IProgress
             BarColor color = BarColor.valueOf(getConfig().getString("BarColor", "BLUE"));
             bossBar = Bukkit.createBossBar("", color, BarStyle.SOLID);
             //Add the player to the bar, The title should be set so quickly that they shouldn't see the first update anyway
-            bossBar.addPlayer(Bukkit.getPlayer(player.getUUID()));
+            bossBar.addPlayer(p);
+        }
+        //Add the player if they arent in the list, this might occur if the player goes offline
+        if (!bossBar.getPlayers().contains(Bukkit.getPlayer(player.getUUID()))) {
+            bossBar.addPlayer(p);
         }
         //The number we get is 0-100, we need 0-1, a simple /100 sorts that out
         double progress = Math.max(0, Math.min(1, percentage / 100));
