@@ -13,12 +13,17 @@ import org.primesoft.asyncworldedit.api.progressDisplay.IProgressDisplay;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public final class AsyncWorldEditBossBar extends JavaPlugin implements IProgressDisplay {
 
+    //Storage for the boss bar associated with each player using AWE
     private final HashMap<UUID, BossBar> bossBars = new HashMap<>();
+    //A list of the last ten times remaining for each player
+    private final HashMap<UUID, List<Double>> previousTimeLeft = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -26,6 +31,11 @@ public final class AsyncWorldEditBossBar extends JavaPlugin implements IProgress
         saveDefaultConfig();
         //Add this class as a progress display in the AsyncWorldEdit API
         IAsyncWorldEdit awe = (IAsyncWorldEdit) Bukkit.getPluginManager().getPlugin("AsyncWorldEdit");
+        if (awe == null) {
+            getLogger().severe("AWE not found!");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
         awe.getProgressDisplayManager().registerProgressDisplay(this);
         getLogger().info(getName() + " v." + getDescription().getVersion() + " has been enabled");
     }
@@ -34,6 +44,8 @@ public final class AsyncWorldEditBossBar extends JavaPlugin implements IProgress
     public void onDisable() {
         //Remove this class as a progress display in the AsyncWorldEdit API
         IAsyncWorldEdit awe = (IAsyncWorldEdit) Bukkit.getPluginManager().getPlugin("AsyncWorldEdit");
+        if (awe == null)
+            return;
         awe.getProgressDisplayManager().unregisterProgressDisplay(this);
     }
 
@@ -46,12 +58,16 @@ public final class AsyncWorldEditBossBar extends JavaPlugin implements IProgress
         BossBar bossBar = bossBars.get(player.getUUID());
         //Set it to invisible
         bossBar.setVisible(false);
+        //Delete the previous times so that the average doesnt bleed between jobs
+        previousTimeLeft.remove(player.getUUID());
     }
 
     @Override
     public void setMessage(IPlayerEntry player, int jobsCount, int queuedBlocks, int maxQueuedBlocks, double timeLeft,
                            double placingSpeed, double percentage) {
         Player p = Bukkit.getPlayer(player.getUUID());
+        if (p == null)
+            return;
         //Get the stored boss bar or make a new one if we dont have one stored
         BossBar bossBar;
         if (bossBars.containsKey(player.getUUID())) {
@@ -73,6 +89,25 @@ public final class AsyncWorldEditBossBar extends JavaPlugin implements IProgress
         //The doubles given to us are stupidly long, so we use this number format to shorten them
         NumberFormat nf = new DecimalFormat("#.##");
         String format = getConfig().getString("TitleFormat");
+
+        //Process the last values for this player for TimeLeft to get an average
+        //This smooths out sudden changes in the time left value over 10 updates of the value
+        List<Double> oldTimeLeftValues;
+        if (previousTimeLeft.containsKey(player.getUUID())) {
+            oldTimeLeftValues = previousTimeLeft.get(player.getUUID());
+        } else {
+            oldTimeLeftValues = new ArrayList<>();
+        }
+        //Enter the new Value
+        oldTimeLeftValues.add(timeLeft);
+        //Trim the list if we have more than 10 values
+        while (oldTimeLeftValues.size() > 10) {
+            oldTimeLeftValues.remove(0);
+        }
+        //Calculate the average
+        double total = oldTimeLeftValues.stream().mapToDouble(value -> value).sum();
+        double smoothedTimeLeft = total / oldTimeLeftValues.size();
+
         //Translate colors and set a default
         format = ChatColor.translateAlternateColorCodes('&',
                 format == null ? "ETA: $timeLeft seconds, Speed: $placingSpeed block/sec, $percentage %" : format);
@@ -80,7 +115,7 @@ public final class AsyncWorldEditBossBar extends JavaPlugin implements IProgress
         format = format.replace("$jobsCount", jobsCount + "")
                 .replace("$queuedBlocks", queuedBlocks + "")
                 .replace("$maxQueuedBlocks", maxQueuedBlocks + "")
-                .replace("$timeLeft", nf.format(timeLeft))
+                .replace("$timeLeft", nf.format(smoothedTimeLeft))
                 .replace("$placingSpeed", nf.format(placingSpeed))
                 .replace("$percentage", nf.format(percentage));
         //Set the title
