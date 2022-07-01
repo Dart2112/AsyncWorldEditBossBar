@@ -108,6 +108,8 @@ public final class AsyncWorldEditBossBar extends JavaPlugin implements IProgress
         double total = oldTimeLeftValues.stream().mapToDouble(value -> value).sum();
         double smoothedTimeLeft = total / oldTimeLeftValues.size();
 
+        //TODO: Use pretty time to make the time left better
+
         //Translate colors and set a default
         format = ChatColor.translateAlternateColorCodes('&',
                 format == null ? "ETA: $timeLeft seconds, Speed: $placingSpeed block/sec, $percentage %" : format);
